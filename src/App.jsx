@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { useState } from "react";
+import supabase from "./supabase-client";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [todoList, setTodoList] = useState([]);
+	const [newTodo, setNewTodo] = useState("");
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	const addTodo = async () => {
+		const newTodoData = {
+			name: newTodo,
+			isCompleted: false,
+		};
+		//implement RLS in production, disable in dev
+		const { data, error } = await supabase
+			.from("Todolist")
+			.insert([newTodoData])
+			.single();
+
+		if (error) {
+			console.log("error adding todo", error);
+		} else {
+			setTodoList((prev) => [...prev, data]);
+		}
+	};
+
+	return (
+		<div>
+			<h1>To do list</h1>
+			<div>
+				<input
+					type="text"
+					placeholder="New Todo..."
+					onChange={(e) => setNewTodo(e.target.value)}
+				/>
+				<button onClick={addTodo}>Add todo Item</button>
+			</div>
+
+			<ul>
+				<li></li>
+			</ul>
+		</div>
+	);
 }
 
-export default App
+export default App;
